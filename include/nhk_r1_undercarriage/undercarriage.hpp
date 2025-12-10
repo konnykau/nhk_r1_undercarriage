@@ -18,8 +18,8 @@ class motor{//モーターのクラス
     const FRY::vec2d direction;//モーターの向いている方向ベクトル
     float TARGET_velocity;//TARGET(m/s)
     rclcpp::Logger logger_;//printfデバッグに使う
-    const float gear_ratio_ = 1.0;//todo ギア比
-    const float wheel_diameter_ = 0.076;//todo ホイール直径(m)
+    const float gear_ratio_ = 19.0;//todo ギア比
+    const float wheel_diameter_ = 0.126;//todo ホイール直径(m)
     float TARGET_rpm;//TARGETをrpmに変換したやつ
     public:
     motor(float x,float y)
@@ -31,7 +31,7 @@ class motor{//モーターのクラス
     float make_frame()
     {
         //rpmに変換して返す
-        this->TARGET_rpm = (this->TARGET_velocity * 60)/(3.14 * this->wheel_diameter_)*this->gear_ratio_;
+        this->TARGET_rpm = (this->TARGET_velocity * 60)/(3.14159265358979 * this->wheel_diameter_)*this->gear_ratio_;
         //このコードがあっているかは不明
         return this->TARGET_rpm;
     }

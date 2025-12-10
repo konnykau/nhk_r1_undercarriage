@@ -6,11 +6,8 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
 
     # 別パッケージのパラメータファイルを取得
-    params = os.path.join(
-        get_package_share_directory('robomas_package_2'),
-        'config',
-        'sender_params.yaml'
-    )
+    pkg_dir = get_package_share_directory('robomas_package_2')
+    params = os.path.join(pkg_dir,'sender_params.yaml')
 
     return LaunchDescription([
         Node(
@@ -18,11 +15,17 @@ def generate_launch_description():
             executable='sender',
             name='sender',
             parameters=[params],
+            output='screen'
         )
         ,Node(
             package='nhk_r1_undercarriage',
             executable='undercarriage_node',
             name='undercarriage_node',
+        )
+        ,Node(
+            package='joy',
+            executable='joy_node',
+            name='joy_node',
         )
     ])
 
