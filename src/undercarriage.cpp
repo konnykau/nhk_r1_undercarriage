@@ -10,8 +10,8 @@
 using std::placeholders::_1;
 
 constexpr double parallel_velocity = 1.0; //m/s todo
-constexpr double rotation_velocity = 1.0; //rad/s todo
-constexpr double machine_radius = 0.2; //m todo
+constexpr double rotation_velocity = 0.4; //rad/s todo
+constexpr double machine_radius = 0.28; //m todo
 
 
 class Undercarriage_Node: public rclcpp::Node
@@ -24,7 +24,7 @@ public:
       "joy", 10, std::bind(&Undercarriage_Node::joy_callback, this, _1));
     auto_moving_mode_subscription_ = this->create_subscription<nhk_r1_undercarriage::msg::VelocityVector>(
       "auto_moving_mode_velocity_vector", 10, std::bind(&Undercarriage_Node::auto_moving_mode_callback, this, _1));
-    robomas_pub_ = this->create_publisher<robomas_package_2::msg::MotorCmdArray>("rm_cmd_array", 10);
+    robomas_pub_ = this->create_publisher<robomas_package_2::msg::MotorCmdArray>("motor_cmd_array", 10);
 
   }
   
@@ -55,14 +55,14 @@ private:
     if(auto_moving_mode_){
       return;
     }
-    float x = -msg.axes[0] * parallel_velocity;//x方向への平行移動速度
+    float x = msg.axes[0] * parallel_velocity;//x方向への平行移動速度
     float y = msg.axes[1] * parallel_velocity;//y方向への平行移動速度
     float theta_vel = 0.0; //回転速度
     if(msg.axes[2] == -1){//ZL(left shouldderボタン)
-      theta_vel = rotation_velocity * machine_radius;
+      theta_vel = -rotation_velocity * machine_radius;
     }//left turn
     else if(msg.axes[5] == -1){//ZR(right shouldderボタン)
-      theta_vel = -rotation_velocity * machine_radius;
+      theta_vel = rotation_velocity * machine_radius;
      }//right turn//平行移動//x軸はjoyの入力時点で反転していた
     this->nhk_r1_undercarriage_.update(x,y,theta_vel);
 

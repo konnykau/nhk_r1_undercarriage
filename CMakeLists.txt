@@ -29,7 +29,8 @@ include_directories(
 
 add_executable(undercarriage src/undercarriage.cpp)
 ament_target_dependencies(undercarriage rclcpp sensor_msgs robomas_package_2)
-rosidl_target_interfaces(undercarriage ${PROJECT_NAME} "rosidl_typesupport_cpp")
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+target_link_libraries(undercarriage ${cpp_typesupport_target})
 
 ament_export_include_directories(include)
 
