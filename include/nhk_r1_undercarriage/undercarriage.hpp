@@ -7,9 +7,9 @@
 #include <cstdint>
 
 
-constexpr float cos45 = FRY::sqrt(2)/2;
-// constexpr float cos30 = FRY::sqrt(3)/2;
-// constexpr float sin30 = 0.5;
+// constexpr float cos45 = FRY::sqrt(2)/2;
+constexpr float cos30 = FRY::sqrt(3)/2;
+constexpr float sin30 = 0.5;
 
 //きれいなコードにしたかったぁぁぁ....
 
@@ -49,19 +49,19 @@ class undercarriage{//足回り全体のクラス
     private:
     FRY::vec2d direction;//進みたい方向
     
-    motor motors[4];
-    uint8_t id_[4] = {1,2,3,4};
+    motor motors[3];
+    uint8_t id_[3] = {1,2,3};
     //四輪オムニ    
     motor_mode MODE;
     rclcpp::Logger logger_;
     public:
     
     undercarriage()
-    :direction(FRY::vec2d(0,0)),motors{motor(-cos45,cos45),motor(-cos45,-cos45),motor(cos45,-cos45),motor(cos45,cos45)},logger_(rclcpp::get_logger("undercarriage"))
+    :direction(FRY::vec2d(0,0)),motors{motor(-sin30,cos30),motor(-sin30,-cos30),motor(1,0)},logger_(rclcpp::get_logger("undercarriage"))
     {
         MODE = motor_mode::disable;
     }//初期化
-    void set_motor_power(float theta_vel);//4タイヤがうまく回るようにする
+    void set_motor_power(float theta_vel);//3タイヤがうまく回るようにする
     void set_direction(float x,float y);//行きたい方向を設定
     std::unique_ptr<robomas_package_2::msg::MotorCmdArray> make_robomas_Frame();//robomas_package_2に送るメッセージを作成
     void make_mode(motor_mode motor_state);//modeを設定
