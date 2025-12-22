@@ -5,6 +5,7 @@
 #include "nhk_r1_undercarriage/undercarriage.hpp"
 #include "robomas_package_2/msg/motor_cmd_array.hpp"
 #include "robomas_package_2/msg/motor_cmd.hpp"
+#include "robomas_package_2/msg/esc.hpp"
 #include "nhk_r1_undercarriage/msg/velocity_vector.hpp"
 
 using std::placeholders::_1;
@@ -25,7 +26,7 @@ public:
     auto_moving_mode_subscription_ = this->create_subscription<nhk_r1_undercarriage::msg::VelocityVector>(
       "auto_moving_mode_velocity_vector", 10, std::bind(&Undercarriage_Node::auto_moving_mode_callback, this, _1));
     robomas_pub_ = this->create_publisher<robomas_package_2::msg::MotorCmdArray>("motor_cmd_array", 10);
-
+    esc_pub_ = this->create_publisher<robomas_package_2::msg::Esc>("esc_tx", 10);
   }
   
 
@@ -34,10 +35,16 @@ private:
   {  
     if(msg.buttons[7]){//startボタン
       nhk_r1_undercarriage_.make_mode(motor_mode::velocity);
+      robomas_package_2::msg::Esc esc_msg;
+      esc_msg.esc = false;
+      esc_pub_->publish(esc_msg);
       
     }//mode velにする
     if(msg.buttons[6]){//backボタン
       nhk_r1_undercarriage_.make_mode(motor_mode::disable);
+      robomas_package_2::msg::Esc esc_msg;
+      esc_msg.esc = true;
+      esc_pub_->publish(esc_msg);
     }//mode disにする
     if(msg.buttons[9]){//左スティック押し込みボタン
       auto_moving_mode_ = !auto_moving_mode_;
@@ -56,13 +63,13 @@ private:
       return;
     }
     float x = msg.axes[0] * parallel_velocity;//x方向への平行移動速度
-    float y = msg.axes[1] * parallel_velocity;//y方向への平行移動速度
+    float y = -msg.axes[1] * parallel_velocity;//y方向への平行移動速度
     float theta_vel = 0.0; //回転速度
     if(msg.axes[2] == -1){//ZL(left shouldderボタン)
       theta_vel = -rotation_velocity * machine_radius;
     }//left turn
     else if(msg.axes[5] == -1){//ZR(right shouldderボタン)
-      theta_vel = -rotation_velocity * machine_radius; 
+      theta_vel = rotation_velocity * machine_radius; 
     }//right turn//平行移動//x軸はjoyの入力時点で反転していた
     this->nhk_r1_undercarriage_.update(x,y,theta_vel);
 
@@ -80,6 +87,7 @@ private:
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr subscription_;
   rclcpp::Subscription<nhk_r1_undercarriage::msg::VelocityVector>::SharedPtr auto_moving_mode_subscription_;
   rclcpp::Publisher<robomas_package_2::msg::MotorCmdArray>::SharedPtr robomas_pub_;
+  rclcpp::Publisher<robomas_package_2::msg::Esc>::SharedPtr esc_pub_;
   undercarriage nhk_r1_undercarriage_;
   bool auto_moving_mode_ = false;
 };

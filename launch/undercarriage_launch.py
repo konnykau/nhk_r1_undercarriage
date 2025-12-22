@@ -7,20 +7,23 @@ def generate_launch_description():
 
     # 別パッケージのパラメータファイルを取得
     pkg_dir = get_package_share_directory('robomas_package_2')
-    params = os.path.join(pkg_dir,'sender_params.yaml')
+    sender_param_file = os.path.join(
+        get_package_share_directory('robomas_package_2'),
+        'config',
+        'sender_params.yaml'
+    )
 
     return LaunchDescription([
         Node(
             package='robomas_package_2',  # ← 別パッケージでもOK!!
             executable='sender',
-            name='sender',
-            parameters=[params],
+            parameters=[sender_param_file],
             output='screen'
         )
         ,Node(
             package='nhk_r1_undercarriage',
-            executable='undercarriage_node',
-            name='undercarriage_node',
+            executable='undercarriage',
+            name='undercarriage',
         )
         ,Node(
             package='joy',
